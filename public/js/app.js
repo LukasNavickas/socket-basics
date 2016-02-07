@@ -7,8 +7,18 @@ socket.on('connect', function() {
 socket.on('message', function(message) {
     console.log('New message');
     console.log(message.text); // we saved object message in backend
+    
+    $('.messages').append('<p>' + message.text + '</p>');
 });
 
-socket.emit('message', { // on message do smth
-       text: 'Welcome to the chat application!'
-   }); 
+// handles submiting of new message
+$('#message-form').on('submit', function(event) {
+   event.preventDefault();
+   var $message = $('#message-form').find('input[name=message]');
+   
+   socket.emit('message', {
+      text: $message.val() 
+   });
+   
+   $message.val('');
+});

@@ -11,7 +11,7 @@ io.on('connection', function(socket) { // word socket means an individual connec
    
    socket.on('message', function(message) {
       console.log('Message received: ' + message.text);
-      socket.broadcast.emit('message', message); 
+      io.emit('message', message); 
    });
    
    socket.emit('message', { // on message do smth
