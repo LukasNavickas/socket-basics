@@ -20,6 +20,7 @@ io.on('connection', function(socket) { // word socket means an individual connec
    // timestrap property - JS timestamp (ms)
    
    socket.emit('message', { // on message do smth
+       name: 'System',
        text: 'Welcome to the chat application!',
        timestamp: moment().valueOf()
    }); 
