@@ -5,10 +5,11 @@ socket.on('connect', function() {
 });
 
 socket.on('message', function(message) {
+    var momentTimestamp = moment.utc(message.timestamp); // standartized UTC time
     console.log('New message');
     console.log(message.text); // we saved object message in backend
     
-    $('.messages').append('<p>' + message.text + '</p>');
+    $('.messages').append('<p><strong>' + momentTimestamp.local().format('h:mm a') + ': </strong>' + message.text + '</p>');
 });
 
 // handles submiting of new message
