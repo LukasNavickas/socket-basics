@@ -9,6 +9,30 @@ app.use(express.static(__dirname + '/public'));
 
 var clientInfo = {};
 
+// sends current users to provided socket
+function sendCurrentUsers(socket) {
+    var info = clientInfo[socket.id];
+    var users = [];
+    
+    if (typeof info === 'undefined') {
+        return;
+    } 
+    
+    Object.keys(clientInfo).forEach(function(socketId) { // iterate all client ids. Ids have their name, room
+        var userinfo = clientInfo[socketId];
+        
+        if (info.room === userinfo.room) {
+            users.push(userinfo.name);
+        }    
+    });
+    
+    socket.emit('message', {
+       name: 'System',
+       text: 'Current users: ' + users.join(', '), // takes all array elements, converts to string and passes one by one 
+       timestamp: moment().valueOf()
+    });
+}
+
 io.on('connection', function(socket) { // word socket means an individual connection
    console.log('User Connected via socket.io!');
    
@@ -41,8 +65,12 @@ io.on('connection', function(socket) { // word socket means an individual connec
    socket.on('message', function(message) {
       console.log('Message received: ' + message.text);
       
-      message.timestamp = moment().valueOf(); // return the JS timestamp (ms)
-      io.to(clientInfo[socket.id].room).emit('message', message); // only emits to the same room
+      if (message.text === '@currentUsers') {
+          sendCurrentUsers(socket);
+      } else {
+         message.timestamp = moment().valueOf(); // return the JS timestamp (ms)
+         io.to(clientInfo[socket.id].room).emit('message', message); // only emits to the same room 
+      }   
    });
    
    // timestrap property - JS timestamp (ms)
