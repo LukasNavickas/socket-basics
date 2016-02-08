@@ -7,14 +7,26 @@ var io = require('socket.io')(http);
 
 app.use(express.static(__dirname + '/public'));
 
+var clientInfo = {};
+
 io.on('connection', function(socket) { // word socket means an individual connection
    console.log('User Connected via socket.io!');
+   
+   socket.on('joinRoom', function(req) {
+      clientInfo[socket.id] = req;
+      socket.join(req.room);
+      socket.broadcast.to(req.room).emit('message', {
+         name: 'System',
+         text: req.name + ' has joined!',
+         timestamp: moment().valueOf()
+      });  
+   });
    
    socket.on('message', function(message) {
       console.log('Message received: ' + message.text);
       
       message.timestamp = moment().valueOf(); // return the JS timestamp (ms)
-      io.emit('message', message); 
+      io.to(clientInfo[socket.id].room).emit('message', message); // only emits to the same room
    });
    
    // timestrap property - JS timestamp (ms)
